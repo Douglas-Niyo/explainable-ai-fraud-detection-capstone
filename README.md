@@ -1,35 +1,34 @@
-**# explainable-ai-fraud-detection-capstone
-MSIT 5910 capstone project: Explainable AI prototype for detecting suspicious credit card transactions.
-**# Explainable AI Fraud Detection Capstone
+# Explainable AI Fraud Detection Prototype
 
-This repository supports my MSIT 5910 capstone project titled "Development of an Explainable AI Prototype for Detecting Suspicious Credit Card Transactions."
+This is the initial working prototype for the MSIT 5910 capstone project: **Development of an Explainable AI Prototype for Detecting Suspicious Credit Card Transactions**.
 
-## Project Purpose
+## What the prototype demonstrates
 
-The purpose of this project is to build a seven-week proof-of-concept system that uses machine learning to detect suspicious credit card transactions, assign fraud-risk scores, and explain prediction factors for human review.
+1. Data intake and validation
+2. Model training and fraud-risk scoring
+3. Plain-language explanations for selected suspicious transactions
+4. Dashboard-style reporting for human review
 
-## Folder Structure
+## Run locally
 
-- src: Python source code
-- notebooks: Data analysis and model development notebooks
-- docs: Capstone reports and planning documents
-- design: Architecture diagrams and system design files
-- tests: Testing files and validation checks
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Mac/Linux
+# Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python src/sample_data.py
+streamlit run app.py
+```
 
-## Planned Tools
+## Folder structure
 
-- Python
-- Pandas
-- NumPy
-- scikit-learn
-- SHAP
-- Streamlit or Power BI
-- GitHub
+- `app.py` - Streamlit dashboard
+- `src/` - data generation and modeling code
+- `data/` - sample synthetic transaction file
+- `docs/` - project documentation
+- `design/` - architecture/design materials
+- `tests/` - future test files
 
-## Dataset
+## Safety note
 
-The project will use a public anonymized credit card fraud dataset from Kaggle:
-
-https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
-
-The dataset itself will not be committed to this repository.
+This demo uses synthetic data generated for a classroom prototype. It does not use live cardholder data or personally identifiable information.
