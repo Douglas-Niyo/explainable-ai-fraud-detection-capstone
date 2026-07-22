@@ -1,4 +1,4 @@
-"""Modeling helpers for the Streamlit prototype."""
+"""Modeling helpers for the Streamlit fraud-detection prototype."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -20,6 +20,7 @@ FEATURES = [
     "foreign_transaction",
     "card_present",
 ]
+TARGET = "is_fraud"
 
 
 @dataclass
@@ -31,9 +32,23 @@ class ModelResult:
     scored_test_data: pd.DataFrame
 
 
+def validate_transaction_dataframe(df: pd.DataFrame) -> None:
+    """Validate that incoming transaction data can be scored by the model."""
+    required_columns = set(FEATURES + [TARGET])
+    missing_columns = sorted(required_columns - set(df.columns))
+    if missing_columns:
+        raise ValueError(f"Missing required columns: {missing_columns}")
+    if df.empty:
+        raise ValueError("Transaction dataset cannot be empty.")
+    if not set(df[TARGET].unique()).issubset({0, 1}):
+        raise ValueError("is_fraud must contain only 0 or 1 labels.")
+
+
 def train_fraud_model(df: pd.DataFrame, model_name: str = "Random Forest") -> ModelResult:
+    """Train a fraud classifier and return metrics plus a ranked risk queue."""
+    validate_transaction_dataframe(df)
     X = df[FEATURES]
-    y = df["is_fraud"]
+    y = df[TARGET]
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=7, stratify=y
     )
@@ -55,6 +70,7 @@ def train_fraud_model(df: pd.DataFrame, model_name: str = "Random Forest") -> Mo
             class_weight="balanced_subsample",
             random_state=7,
         )
+        model_name = "Random Forest"
 
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
@@ -84,13 +100,17 @@ def train_fraud_model(df: pd.DataFrame, model_name: str = "Random Forest") -> Mo
     scored["predicted_flag"] = y_pred
     scored = scored.sort_values("risk_score", ascending=False)
 
-    return ModelResult(model_name=model_name, model=model, metrics=metrics, confusion=confusion, scored_test_data=scored)
+    return ModelResult(
+        model_name=model_name,
+        model=model,
+        metrics=metrics,
+        confusion=confusion,
+        scored_test_data=scored,
+    )
 
 
 def explain_transaction(row: pd.Series) -> pd.DataFrame:
-    """Provide simple reason codes for the demo.
-    These are not SHAP values; they are transparent, business-readable risk reasons for the initial prototype.
-    """
+    """Return plain-language reason codes for the selected transaction."""
     reasons = []
     if row["amount"] >= 140:
         reasons.append(("High amount", "Transaction amount is unusually high for this sample."))

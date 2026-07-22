@@ -5,7 +5,7 @@ import pathlib
 import pandas as pd
 import streamlit as st
 
-from src.modeling import FEATURES, explain_transaction, train_fraud_model
+from src.modeling import FEATURES, explain_transaction, train_fraud_model, validate_transaction_dataframe
 from src.sample_data import build_sample_transactions
 
 st.set_page_config(page_title="Explainable Fraud Detection Prototype", page_icon="🔐", layout="wide")
@@ -35,10 +35,10 @@ def load_data(uploaded):
 
 df = load_data(uploaded_file)
 
-required_columns = set(FEATURES + ["is_fraud"])
-missing_columns = required_columns - set(df.columns)
-if missing_columns:
-    st.error(f"The dataset is missing required columns: {sorted(missing_columns)}")
+try:
+    validate_transaction_dataframe(df)
+except ValueError as error:
+    st.error(str(error))
     st.stop()
 
 st.subheader("1. Data Intake and Quality Check")
