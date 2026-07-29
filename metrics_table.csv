@@ -1,0 +1,3 @@
+class,precision,recall,f1_score,support
+Legitimate,0.845,0.888,0.866,240
+Suspicious/Fraud,0.438,0.35,0.389,60
