@@ -1,0 +1,6 @@
+metric,value
+transactions_processed,1200
+test_set_size,300
+training_and_scoring_seconds,0.214
+transactions_per_second,5610.2
+total_coverage_from_pytest,92%
